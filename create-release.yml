@@ -1,0 +1,257 @@
+#!/usr/bin/env ansible-playbook
+---
+- hosts: all
+  become: yes
+  gather_facts: no
+
+  vars_files:
+    - vault.yml
+    - variables.yml
+
+  vars:
+    release_name: "Virusscanning"
+    release_body: "Finally seems to work now. Only took 2 weeks."
+    delay: 60
+    retries: 60
+
+  tasks:
+    - name: bootstrap
+      include_role:
+        name: buluma.bootstrap
+      tags:
+        - level0
+        - level1
+        - level2
+        - level3
+
+    - name: set the right timezone
+      timezone:
+        name: Africa/Nairobi
+      tags:
+        - level0
+        - level1
+        - level2
+        - level3
+
+    - name: ntp
+      include_role:
+        name: buluma.ntp
+      tags:
+        - level0
+        - level1
+        - level2
+        - level3
+
+    - name: buildtools
+      include_role:
+        name: buluma.buildtools
+      tags:
+        - level0
+        - level1
+        - level2
+        - level3
+
+    - name: epel
+      include_role:
+        name: buluma.epel
+      tags:
+        - level0
+        - level1
+        - level2
+        - level3
+
+    - name: scl
+      include_role:
+        name: buluma.scl
+      tags:
+        - level0
+        - level1
+        - level2
+        - level3
+
+    - name: python-pip
+      include_role:
+        name: buluma.python-pip
+      vars:
+        python_pip_modules:
+          - name: github3.py
+            version: 1.0.0a4
+      tags:
+        - level0
+        - level1
+        - level2
+        - level3
+
+    - name: create a new release for level 0.
+      github_release:
+        user: "{{ vault_github_username }}"
+        token: "{{ vault_github_token }}"
+        repo: "{{ item }}"
+        action: create_release
+        tag: "{{ ansible_date_time.year }}.{{ ansible_date_time.month }}.{{ ansible_date_time.day }}"
+        name: "{{ release_name }}"
+        body: "{{ release_body }}"
+      with_items:
+        - "{{ ansible_roles.level0 }}"
+      tags:
+        - level0
+
+    - name: wait a moment for the build to start
+      pause:
+        seconds: 30
+      tags:
+        - level0
+
+    - name: "wait for {{ item }} build to finish"
+      uri:
+        url: "https://api.travis-ci.org/repos/buluma/{{ item }}/builds"
+        headers:
+          Authorization: "{{ vault_github_token }}"
+      register: travis
+      with_items:
+        - "{{ ansible_roles.level0 }}"
+      until:
+        - travis.json.0.state == "finished"
+      retries: "{{ retries }}"
+      delay: "{{ delay }}"
+      failed_when: travis.json.0.result != 0
+      tags:
+        - level0
+
+    - name: create a new release for level 1.
+      github_release:
+        user: "{{ vault_github_username }}"
+        token: "{{ vault_github_token }}"
+        repo: "{{ item }}"
+        action: create_release
+        tag: "{{ ansible_date_time.year }}.{{ ansible_date_time.month }}.{{ ansible_date_time.day }}"
+        name: "{{ release_name }}"
+        body: "{{ release_body }}"
+      with_items:
+        - "{{ ansible_roles.level1 }}"
+      tags:
+        - level1
+
+    - name: wait a moment for the build to start
+      pause:
+        seconds: 30
+      tags:
+        - level1
+
+    - name: "wait for {{ item }} build to finish"
+      uri:
+        url: "https://api.travis-ci.org/repos/buluma/{{ item }}/builds"
+        headers:
+          Authorization: "{{ vault_github_token }}"
+      register: travis
+      with_items:
+        - "{{ ansible_roles.level1 }}"
+      until: travis.json.0.state == "finished"
+      retries: "{{ retries }}"
+      delay: "{{ delay }}"
+      failed_when: travis.json.0.result != 0
+      tags:
+        - level1
+
+    - name: create a new release for level 2.
+      github_release:
+        user: "{{ vault_github_username }}"
+        token: "{{ vault_github_token }}"
+        repo: "{{ item }}"
+        action: create_release
+        tag: "{{ ansible_date_time.year }}.{{ ansible_date_time.month }}.{{ ansible_date_time.day }}"
+        name: "{{ release_name }}"
+        body: "{{ release_body }}"
+      with_items:
+        - "{{ ansible_roles.level2 }}"
+      tags:
+        - level2
+
+    - name: wait a moment for the build to start
+      pause:
+        seconds: 30
+      tags:
+        - level2
+
+    - name: "wait for {{ item }} build to finish"
+      uri:
+        url: "https://api.travis-ci.org/repos/buluma/{{ item }}/builds"
+        headers:
+          Authorization: "{{ vault_github_token }}"
+      register: travis
+      with_items:
+        - "{{ ansible_roles.level2 }}"
+      until: travis.json.0.state == "finished"
+      retries: "{{ retries }}"
+      delay: "{{ delay }}"
+      failed_when: travis.json.0.result != 0
+      tags:
+        - level2
+
+    - name: create a new release for level 3.
+      github_release:
+        user: "{{ vault_github_username }}"
+        token: "{{ vault_github_token }}"
+        repo: "{{ item }}"
+        action: create_release
+        tag: "{{ ansible_date_time.year }}.{{ ansible_date_time.month }}.{{ ansible_date_time.day }}"
+        name: "{{ release_name }}"
+        body: "{{ release_body }}"
+      with_items:
+        - "{{ ansible_roles.level3 }}"
+      tags:
+        - level3
+
+    - name: wait a moment for the build to start
+      pause:
+        seconds: 30
+      tags:
+        - level3
+
+    - name: "wait for {{ item }} build to finish"
+      uri:
+        url: "https://api.travis-ci.org/repos/buluma/{{ item }}/builds"
+        headers:
+          Authorization: "{{ vault_github_token }}"
+      register: travis
+      with_items:
+        - "{{ ansible_roles.level3 }}"
+      until: travis.json.0.state == "finished"
+      retries: "{{ retries }}"
+      delay: "{{ delay }}"
+      failed_when: travis.json.0.result != 0
+      tags:
+        - level3
+
+    - name: create a new release for level 99.
+      github_release:
+        user: "{{ vault_github_username }}"
+        token: "{{ vault_github_token }}"
+        repo: "{{ item }}"
+        action: create_release
+        tag: "{{ ansible_date_time.year }}.{{ ansible_date_time.month }}.{{ ansible_date_time.day }}"
+        name: "{{ release_name }}"
+        body: "{{ release_body }}"
+      with_items:
+        - "{{ ansible_roles.level99 }}"
+      tags:
+        - level99
+
+    - name: wait a moment for the build to start
+      pause:
+        seconds: 30
+
+    - name: "wait for {{ item }} build to finish"
+      uri:
+        url: "https://api.travis-ci.org/repos/buluma/{{ item }}/builds"
+        headers:
+          Authorization: "{{ vault_github_token }}"
+      register: travis
+      with_items:
+        - "{{ ansible_roles.level99 }}"
+      until: travis.json.0.state == "finished"
+      retries: "{{ retries }}"
+      delay: "{{ delay }}"
+      failed_when: travis.json.0.result != 0
+      tags:
+        - level99

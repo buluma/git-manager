@@ -1,0 +1,7 @@
+- buluma.bootstrap
+- buluma.update
+- buluma.ntp
+- buluma.buildtools
+- buluma.epel
+- buluma.scl
+- buluma.python_pip

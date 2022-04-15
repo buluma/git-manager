@@ -1,0 +1,42 @@
+---
+ansible_roles:
+  level0:
+    - ansible-role-bootstrap
+  level1:
+    - ansible-role-buildtools
+    - ansible-role-epel
+    - ansible-role-httpd
+    - ansible-role-iptables
+    - ansible-role-java
+    - ansible-role-mysql
+    - ansible-role-php
+    - ansible-role-rsyslog
+    - ansible-role-scl
+    - ansible-role-xinetd
+  level2:
+    - ansible-role-npm
+    - ansible-role-python-pip
+    - ansible-role-tomcat
+  level3:
+    - ansible-role-docker
+    - ansible-role-revealmd
+  level99:
+    - ansible-role-dhcpd
+    - ansible-role-dns
+    - ansible-role-dovecot
+    - ansible-role-haveged
+    - ansible-role-ntp
+    - ansible-role-mssql
+    - ansible-role-postfix
+    - ansible-role-release
+    - ansible-role-ruby
+    - ansible-role-update
+    - ansible-role-clamav
+    - ansible-role-spamassassin
+    - ansible-role-fail2ban
+    - ansible-role-natrouter
+    - ansible-role-nginx
+    - ansible-role-phpmyadmin
+    - ansible-role-rundeck
+    - ansible-role-tftpd
+    - ansible-role-zabbix
